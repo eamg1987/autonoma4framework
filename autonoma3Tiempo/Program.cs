@@ -13,20 +13,24 @@ builder.Services.AddDbContext<TemperaturaDbContext>(options =>
 var app = builder.Build();
 try
 {
-    Console.WriteLine("hola se ejcuto1");
+    
 
     string json_original = "https://api.tutiempo.net/json/?lan=es&apid=zxEq44aqz44t3k9&lid=56608";  // Ruta al archivo JSON
     string json = GetHttp(json_original);
-    Console.WriteLine("hola se ejcuto2");
-
+    
     WeatherData weatherData = JsonSerializer.Deserialize<WeatherData>(json);
-    Console.WriteLine("hola se ejcuto3");
 
-    Console.WriteLine($"Copy right: {weatherData.copyright}");
-    Console.WriteLine($"Dia 1: {weatherData.day1.date}");
-    Console.WriteLine($"name: {weatherData.locality.name}");
-    Console.WriteLine($"Temperatura: {weatherData.information.temperature}");
-    Console.WriteLine($"Hora: {weatherData.hour_hour["hour1"].date}");
+    Console.WriteLine("Información a Guardar");
+
+    Console.WriteLine($"Pais: {weatherData.locality.country}");
+    Console.WriteLine($"Ciudad: {weatherData.locality.name}");
+    Console.WriteLine($"Fecha: {weatherData.day1.date}");
+    Console.WriteLine($"Temperatura-Max: {weatherData.day1.temperature_max}");
+    Console.WriteLine($"Temperatura-Min: {weatherData.day1.temperature_min}");
+    Console.WriteLine($"Hora: {weatherData.day1.sunset}");
+
+
+
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<TemperaturaDbContext>();
 
@@ -44,7 +48,7 @@ try
 
         dbContext.temperatura.Add(nuevaTemperatura);
         dbContext.SaveChanges();
-    
+        Console.WriteLine("Información Guardada Correctamente");
 
     var entidades = dbContext.temperatura
          .ToList();
@@ -74,12 +78,10 @@ static string GetHttp(string url)
 {
     WebRequest oRequest = WebRequest.Create(url);
     WebResponse oResponse = oRequest.GetResponse();
-    Console.WriteLine("hola se ejcuto7");
+    
 
     using (StreamReader sr = new StreamReader(oResponse.GetResponseStream()))
     {
-        Console.WriteLine("hola se ejcuto4");
-        Console.WriteLine(sr);
 
         return sr.ReadToEnd().Trim();
     }
